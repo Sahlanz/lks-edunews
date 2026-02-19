@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduNews - Portal Berita SMK Jawa Timur</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f1f5f9; color: #1e293b; }
+
+    /* NAVBAR */
+    nav { background: #0f172a; padding: 0 2rem;
+          display: flex; justify-content: space-between; align-items: center;
+          position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+    .nav-brand { color: white; font-size: 1.4rem; font-weight: 800;
+                 padding: 1rem 0; letter-spacing: -0.5px; }
+    .nav-brand span { color: #38bdf8; }
+    .nav-links { display: flex; gap: 0.5rem; align-items: center; }
+    .nav-links a { color: #94a3b8; text-decoration: none; padding: 0.5rem 1rem;
+                   border-radius: 6px; font-size: 0.9rem; transition: all 0.2s; }
+    .nav-links a:hover { color: white; background: #1e293b; }
+    .btn-tulis { background: #38bdf8 !important; color: #0f172a !important;
+                 font-weight: 700 !important; }
+    .btn-tulis:hover { background: #7dd3fc !important; }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            padding: 4rem 2rem; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -50%; left: -50%;
+                    width: 200%; height: 200%;
+                    background: radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%); }
+    .hero h1 { color: white; font-size: 2.8rem; font-weight: 800;
+               margin-bottom: 1rem; position: relative; }
+    .hero h1 span { color: #38bdf8; }
+    .hero p { color: #94a3b8; font-size: 1.1rem; max-width: 500px;
+              margin: 0 auto 2rem; position: relative; }
+    .hero-search { display: flex; max-width: 500px; margin: 0 auto; position: relative; }
+    .hero-search input { flex: 1; padding: 0.9rem 1.2rem; border: none;
+                         border-radius: 8px 0 0 8px; font-size: 1rem; outline: none; }
+    .hero-search button { background: #38bdf8; color: #0f172a; border: none;
+                          padding: 0 1.5rem; border-radius: 0 8px 8px 0;
+                          font-weight: 700; cursor: pointer; font-size: 1rem; }
+
+    /* KATEGORI FILTER */
+    .kategori-bar { background: white; padding: 1rem 2rem;
+                    display: flex; gap: 0.5rem; flex-wrap: wrap;
+                    border-bottom: 1px solid #e2e8f0; justify-content: center; }
+    .kat-btn { padding: 0.4rem 1.1rem; border-radius: 999px; border: none;
+               cursor: pointer; font-size: 0.85rem; font-weight: 600;
+               background: #f1f5f9; color: #64748b; transition: all 0.2s; }
+    .kat-btn:hover, .kat-btn.active { background: #0f172a; color: white; }
+
+    /* MAIN CONTENT */
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+    .section-title { font-size: 1.2rem; font-weight: 700; color: #0f172a;
+                     margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .section-title::after { content: ''; flex: 1; height: 2px; background: #e2e8f0; }
+
+    /* BERITA UTAMA (HERO CARD) */
+    .hero-card { background: white; border-radius: 16px; overflow: hidden;
+                 box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 2rem;
+                 display: grid; grid-template-columns: 1fr 1fr; cursor: pointer;
+                 transition: transform 0.2s; }
+    .hero-card:hover { transform: translateY(-3px); }
+    .hero-card-img { background: linear-gradient(135deg, #0f172a, #1e3a5f);
+                     display: flex; align-items: center; justify-content: center;
+                     font-size: 5rem; min-height: 280px; }
+    .hero-card img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-card-body { padding: 2rem; display: flex; flex-direction: column; justify-content: center; }
+    .hero-badge { display: inline-block; background: #dbeafe; color: #1d4ed8;
+                  padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.78rem;
+                  font-weight: 700; margin-bottom: 1rem; }
+    .hero-card-body h2 { font-size: 1.6rem; font-weight: 800; line-height: 1.3;
+                         color: #0f172a; margin-bottom: 0.8rem; }
+    .hero-card-body p { color: #64748b; line-height: 1.6; margin-bottom: 1.5rem; }
+    .hero-meta { display: flex; gap: 1rem; font-size: 0.82rem; color: #94a3b8; }
+
+    /* GRID BERITA */
+    .berita-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .berita-card { background: white; border-radius: 12px; overflow: hidden;
+                   box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer;
+                   transition: all 0.2s; }
+    .berita-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+    .card-img { height: 180px; background: linear-gradient(135deg, #0f172a, #1e3a5f);
+                display: flex; align-items: center; justify-content: center;
+                font-size: 3rem; overflow: hidden; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-body { padding: 1.2rem; }
+    .card-kategori { display: inline-block; padding: 0.2rem 0.7rem;
+                     border-radius: 999px; font-size: 0.72rem; font-weight: 700;
+                     margin-bottom: 0.6rem; }
+    .kat-prestasi { background: #fef9c3; color: #a16207; }
+    .kat-kegiatan { background: #dcfce7; color: #15803d; }
+    .kat-pengumuman { background: #dbeafe; color: #1d4ed8; }
+    .kat-teknologi { background: #f3e8ff; color: #7c3aed; }
+    .kat-olahraga { background: #fee2e2; color: #dc2626; }
+    .kat-lainnya { background: #f1f5f9; color: #475569; }
+    .card-body h3 { font-size: 0.95rem; font-weight: 700; line-height: 1.4;
+                    color: #0f172a; margin-bottom: 0.5rem; }
+    .card-body p { font-size: 0.82rem; color: #64748b; line-height: 1.5;
+                   display: -webkit-box; -webkit-line-clamp: 2;
+                   -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { padding: 0.8rem 1.2rem; border-top: 1px solid #f1f5f9;
+                   display: flex; justify-content: space-between;
+                   font-size: 0.75rem; color: #94a3b8; }
+
+    /* LOADING & EMPTY */
+    .loading { text-align: center; padding: 4rem; color: #94a3b8; }
+    .spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0;
+               border-top-color: #38bdf8; border-radius: 50%;
+               animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { text-align: center; padding: 4rem; color: #94a3b8; }
+    .empty-state .icon { font-size: 4rem; margin-bottom: 1rem; }
+
+    /* FOOTER */
+    footer { background: #0f172a; color: #94a3b8; padding: 2rem;
+             text-align: center; margin-top: 3rem; font-size: 0.85rem; }
+    footer span { color: #38bdf8; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-brand">Edu<span>News</span></div>
+    <div class="nav-links">
+      <a href="/">Beranda</a>
+      <a href="/?kat=Prestasi">Prestasi</a>
+      <a href="/?kat=Kegiatan">Kegiatan</a>
+      <a href="/?kat=Pengumuman">Pengumuman</a>
+      <a href="/tulis" class="btn-tulis">✏️ Tulis Berita</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Portal Berita<br/><span>SMK Jawa Timur</span></h1>
+    <p>Informasi terkini seputar prestasi, kegiatan, dan pengumuman sekolah</p>
+    <div class="hero-search">
+      <input type="text" id="input-cari" placeholder="Cari berita..."/>
+      <button onclick="cariBerita()">🔍 Cari</button>
+    </div>
+  </div>
+
+  <div class="kategori-bar">
+    <button class="kat-btn active" onclick="filterKat('', this)">Semua</button>
+    <button class="kat-btn" onclick="filterKat('Prestasi', this)">🏆 Prestasi</button>
+    <button class="kat-btn" onclick="filterKat('Kegiatan', this)">📅 Kegiatan</button>
+    <button class="kat-btn" onclick="filterKat('Pengumuman', this)">📢 Pengumuman</button>
+    <button class="kat-btn" onclick="filterKat('Teknologi', this)">💻 Teknologi</button>
+    <button class="kat-btn" onclick="filterKat('Olahraga', this)">⚽ Olahraga</button>
+  </div>
+
+  <div class="container">
+    <div id="hero-section"></div>
+    <div class="section-title">📰 Berita Terbaru</div>
+    <div id="berita-container">
+      <div class="loading">
+        <div class="spinner"></div>
+        Memuat berita...
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 <span>EduNews</span> — Portal Berita SMK Jawa Timur</p>
+    <p style="margin-top:0.5rem">Powered by AWS Elastic Beanstalk & DynamoDB</p>
+  </footer>
+
+  <script>
+    let semuaBerita = [];
+    let kategoriAktif = '';
+
+    const katEmoji = {
+      'Prestasi': '🏆', 'Kegiatan': '📅', 'Pengumuman': '📢',
+      'Teknologi': '💻', 'Olahraga': '⚽', 'Lainnya': '📰'
+    };
+
+    const katClass = {
+      'Prestasi': 'kat-prestasi', 'Kegiatan': 'kat-kegiatan',
+      'Pengumuman': 'kat-pengumuman', 'Teknologi': 'kat-teknologi',
+      'Olahraga': 'kat-olahraga', 'Lainnya': 'kat-lainnya'
+    };
+
+    function formatTanggal(iso) {
+      return new Date(iso).toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+    }
+
+    function potong(teks, max) {
+      return teks.length > max ? teks.substring(0, max) + '...' : teks;
+    }
+
+    function renderHero(berita) {
+      const el = document.getElementById('hero-section');
+      if (!berita) { el.innerHTML = ''; return; }
+      el.innerHTML = `
+        <div class="hero-card" onclick="bukaBerita('${berita.id}')">
+          <div class="hero-card-img">
+            ${berita.gambar_url
+              ? `<img src="${berita.gambar_url}" alt="${berita.judul}"/>`
+              : `<span>${katEmoji[berita.kategori] || '📰'}</span>`}
+          </div>
+          <div class="hero-card-body">
+            <span class="hero-badge">${berita.kategori}</span>
+            <h2>${berita.judul}</h2>
+            <p>${potong(berita.isi.replace(/<[^>]*>/g,''), 200)}</p>
+            <div class="hero-meta">
+              <span>✍️ ${berita.penulis}</span>
+              <span>🏫 ${berita.sekolah || 'EduNews'}</span>
+              <span>📅 ${formatTanggal(berita.tanggal)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="section-title">🔥 Berita Pilihan</div>
+      `;
+    }
+
+    function renderGrid(items) {
+      const container = document.getElementById('berita-container');
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <p>Belum ada berita${kategoriAktif ? ' untuk kategori ini' : ''}.</p>
+            <br/>
+            <a href="/tulis" style="color:#38bdf8;font-weight:bold">+ Tulis berita pertama</a>
+          </div>`;
+        return;
+      }
+      container.innerHTML = `
+        <div class="berita-grid">
+          ${items.map(b => `
+            <div class="berita-card" onclick="bukaBerita('${b.id}')">
+              <div class="card-img">
+                ${b.gambar_url
+                  ? `<img src="${b.gambar_url}" alt="${b.judul}"/>`
+                  : `<span>${katEmoji[b.kategori] || '📰'}</span>`}
+              </div>
+              <div class="card-body">
+                <span class="card-kategori ${katClass[b.kategori] || 'kat-lainnya'}">
+                  ${katEmoji[b.kategori] || '📰'} ${b.kategori}
+                </span>
+                <h3>${b.judul}</h3>
+                <p>${b.isi.replace(/<[^>]*>/g,'')}</p>
+              </div>
+              <div class="card-footer">
+                <span>✍️ ${b.penulis}</span>
+                <span>📅 ${formatTanggal(b.tanggal)}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    async function loadBerita() {
+      try {
+        const res = await fetch('/api/berita');
+        const data = await res.json();
+        semuaBerita = data.data || [];
+        tampilkanBerita();
+      } catch (err) {
+        document.getElementById('berita-container').innerHTML =
+          `<div class="loading" style="color:#ef4444">Gagal memuat: ${err.message}</div>`;
+      }
+    }
+
+    function tampilkanBerita() {
+      let filtered = semuaBerita;
+      if (kategoriAktif) filtered = filtered.filter(b => b.kategori === kategoriAktif);
+      const cari = document.getElementById('input-cari').value.toLowerCase();
+      if (cari) filtered = filtered.filter(b =>
+        b.judul.toLowerCase().includes(cari) || b.isi.toLowerCase().includes(cari)
+      );
+      renderHero(filtered[0] || null);
+      renderGrid(filtered.slice(1));
+    }
+
+    function filterKat(kat, btn) {
+      kategoriAktif = kat;
+      document.querySelectorAll('.kat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tampilkanBerita();
+    }
+
+    function cariBerita() { tampilkanBerita(); }
+
+    document.getElementById('input-cari').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') cariBerita();
+    });
+
+    function bukaBerita(id) {
+      window.location.href = `/detail?id=${id}`;
+    }
+
+    loadBerita();
+  </script>
+</body>
+</html>
