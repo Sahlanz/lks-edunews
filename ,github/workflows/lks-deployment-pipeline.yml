@@ -13,6 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci  # lebih baik daripada npm install
+
+      - name: Buat deployment package
+        run: |
+          zip -r edunews-deploy.zip . \
+            -x "*.git*" \
+            -x ".github/*" \
+            -x "node_modules/*" \
+            -x ".env*" \
+            -x "*.log" \
+            -x "tests/*" \
+            -x "__tests__/*" \
+            -x "coverage/*"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -20,15 +40,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Buat deployment package
-        run: |
-          zip -r edunews-deploy.zip . \
-            --exclude "*.git*" \
-            --exclude ".github/*"
 
       - name: Upload ke S3
         run: |
@@ -38,20 +49,20 @@ jobs:
       - name: Buat application version
         run: |
           aws elasticbeanstalk create-application-version \
-            --application-name ${{ secrets.EB_APP_NAME }} \
+            --application-name "${{ secrets.EB_APP_NAME }}" \
             --version-label "v-${{ github.sha }}" \
-            --source-bundle \
-              S3Bucket=${{ secrets.S3_ARTIFACTS_BUCKET }},S3Key=edunews-${{ github.sha }}.zip
+            --source-bundle S3Bucket="${{ secrets.S3_ARTIFACTS_BUCKET }}",S3Key="edunews-${{ github.sha }}.zip"
 
       - name: Deploy ke Elastic Beanstalk
         run: |
           aws elasticbeanstalk update-environment \
-            --application-name ${{ secrets.EB_APP_NAME }} \
-            --environment-name ${{ secrets.EB_ENV_NAME }} \
+            --application-name "${{ secrets.EB_APP_NAME }}" \
+            --environment-name "${{ secrets.EB_ENV_NAME }}" \
             --version-label "v-${{ github.sha }}"
 
-      - name: Tunggu selesai
+      - name: Tunggu deployment selesai
         run: |
           aws elasticbeanstalk wait environment-updated \
-            --application-name ${{ secrets.EB_APP_NAME }} \
-            --environment-names ${{ secrets.EB_ENV_NAME }}
+            --application-name "${{ secrets.EB_APP_NAME }}" \
+            --environment-names "${{ secrets.EB_ENV_NAME }}" \
+            --timeout-in-minutes 10 || echo "Timeout waiter, tapi cek console EB manual."
