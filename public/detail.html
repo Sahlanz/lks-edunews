@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detail Berita - EduNews</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f1f5f9; color: #1e293b; }
+    nav { background: #0f172a; padding: 0 2rem;
+          display: flex; justify-content: space-between; align-items: center; }
+    .nav-brand { color: white; font-size: 1.4rem; font-weight: 800; padding: 1rem 0; }
+    .nav-brand span { color: #38bdf8; }
+    .nav-back { color: #94a3b8; text-decoration: none; padding: 0.5rem 1rem;
+                border-radius: 6px; font-size: 0.9rem; }
+    .nav-back:hover { color: white; background: #1e293b; }
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    .artikel { background: white; border-radius: 16px;
+               box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+    .artikel-header { background: linear-gradient(135deg, #0f172a, #1e3a5f);
+                      padding: 3rem 2.5rem; }
+    .artikel-kat { display: inline-block; background: rgba(56,189,248,0.2);
+                   color: #38bdf8; padding: 0.3rem 0.9rem; border-radius: 999px;
+                   font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; }
+    .artikel-header h1 { color: white; font-size: 2rem; font-weight: 800;
+                         line-height: 1.3; margin-bottom: 1.5rem; }
+    .artikel-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .meta-item { color: #94a3b8; font-size: 0.85rem; display: flex;
+                 align-items: center; gap: 0.4rem; }
+    .artikel-img { width: 100%; max-height: 400px; object-fit: cover; }
+    .artikel-body { padding: 2.5rem; }
+    .artikel-body p { line-height: 1.9; font-size: 1.05rem; color: #374151;
+                      white-space: pre-wrap; }
+    .divider { height: 1px; background: #e2e8f0; margin: 2rem 0; }
+    .share-section { text-align: center; }
+    .share-section p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem; }
+    .btn-back { display: inline-block; background: #0f172a; color: white;
+                text-decoration: none; padding: 0.8rem 2rem; border-radius: 8px;
+                font-weight: 600; margin-top: 1rem; }
+    .btn-back:hover { background: #1e293b; }
+    .btn-hapus { display: inline-block; background: #ef4444; color: white;
+                 border: none; padding: 0.8rem 2rem; border-radius: 8px;
+                 font-weight: 600; cursor: pointer; margin-left: 0.5rem; }
+    .loading { text-align: center; padding: 4rem; color: #94a3b8; }
+    .spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0;
+               border-top-color: #38bdf8; border-radius: 50%;
+               animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-brand">Edu<span>News</span></div>
+    <a href="/" class="nav-back">← Semua Berita</a>
+  </nav>
+
+  <div class="container">
+    <div id="konten">
+      <div class="loading">
+        <div class="spinner"></div>
+        Memuat berita...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    async function loadDetail() {
+      if (!id) {
+        window.location.href = '/';
+        return;
+      }
+      try {
+        const res = await fetch(`/api/berita/${id}`);
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById('konten').innerHTML =
+            '<div class="loading">Berita tidak ditemukan.</div>';
+          return;
+        }
+        const b = data.data;
+        const tanggal = new Date(b.tanggal).toLocaleDateString('id-ID', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        document.title = b.judul + ' - EduNews';
+        document.getElementById('konten').innerHTML = `
+          <div class="artikel">
+            <div class="artikel-header">
+              <div class="artikel-kat">${b.kategori}</div>
+              <h1>${b.judul}</h1>
+              <div class="artikel-meta">
+                <div class="meta-item">✍️ ${b.penulis}</div>
+                <div class="meta-item">🏫 ${b.sekolah || 'EduNews'}</div>
+                <div class="meta-item">📅 ${tanggal}</div>
+              </div>
+            </div>
+            ${b.gambar_url ? `<img class="artikel-img" src="${b.gambar_url}" alt="${b.judul}"/>` : ''}
+            <div class="artikel-body">
+              <p>${b.isi}</p>
+              <div class="divider"></div>
+              <div class="share-section">
+                <p>Bagikan berita ini kepada teman-temanmu!</p>
+                <a href="/" class="btn-back">← Kembali ke Beranda</a>
+                <button class="btn-hapus" onclick="hapusBerita('${b.id}')">🗑️ Hapus</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('konten').innerHTML =
+          `<div class="loading" style="color:red">Gagal memuat: ${err.message}</div>`;
+      }
+    }
+
+    async function hapusBerita(id) {
+      if (!confirm('Yakin ingin menghapus berita ini?')) return;
+      try {
+        await fetch(`/api/berita/${id}`, { method: 'DELETE' });
+        alert('Berita berhasil dihapus');
+        window.location.href = '/';
+      } catch (err) {
+        alert('Gagal menghapus: ' + err.message);
+      }
+    }
+
+    loadDetail();
+  </script>
+</body>
+</html>
