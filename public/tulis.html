@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tulis Berita - EduNews</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f1f5f9; color: #1e293b; }
+    nav { background: #0f172a; padding: 0 2rem;
+          display: flex; justify-content: space-between; align-items: center; }
+    .nav-brand { color: white; font-size: 1.4rem; font-weight: 800; padding: 1rem 0; }
+    .nav-brand span { color: #38bdf8; }
+    .nav-back { color: #94a3b8; text-decoration: none; padding: 0.5rem 1rem;
+                border-radius: 6px; font-size: 0.9rem; }
+    .nav-back:hover { color: white; background: #1e293b; }
+    .page-header { background: linear-gradient(135deg, #0f172a, #1e3a5f);
+                   padding: 2.5rem 2rem; text-align: center; }
+    .page-header h1 { color: white; font-size: 2rem; font-weight: 800; }
+    .page-header p { color: #94a3b8; margin-top: 0.5rem; }
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    .card { background: white; border-radius: 16px; padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    label { display: block; font-size: 0.85rem; font-weight: 600; color: #374151;
+            margin-bottom: 0.4rem; }
+    .required { color: #ef4444; }
+    input, select, textarea {
+      width: 100%; padding: 0.8rem 1rem; border: 1.5px solid #e2e8f0;
+      border-radius: 8px; font-size: 0.95rem; font-family: inherit;
+      transition: border-color 0.2s; margin-bottom: 1.2rem; background: #f8fafc; }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: #38bdf8; background: white; }
+    textarea { resize: vertical; min-height: 200px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit { width: 100%; background: linear-gradient(135deg, #0f172a, #1e3a5f);
+                  color: white; border: none; padding: 1rem; border-radius: 10px;
+                  font-size: 1.05rem; font-weight: 700; cursor: pointer;
+                  transition: opacity 0.2s; margin-top: 0.5rem; }
+    .btn-submit:hover { opacity: 0.9; }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    #status { text-align: center; margin-top: 1rem; padding: 0.8rem;
+              border-radius: 8px; font-size: 0.95rem; display: none; }
+    .status-ok { background: #dcfce7; color: #15803d; }
+    .status-err { background: #fee2e2; color: #dc2626; }
+    .preview-box { border: 2px dashed #e2e8f0; border-radius: 8px;
+                   padding: 1rem; text-align: center; color: #94a3b8;
+                   font-size: 0.85rem; margin-bottom: 1.2rem; min-height: 80px;
+                   display: flex; align-items: center; justify-content: center; }
+    .preview-box img { max-height: 200px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-brand">Edu<span>News</span></div>
+    <a href="/" class="nav-back">← Kembali ke Beranda</a>
+  </nav>
+  <div class="page-header">
+    <h1>✏️ Tulis Berita Baru</h1>
+    <p>Bagikan informasi dan prestasi sekolahmu kepada dunia</p>
+  </div>
+  <div class="container">
+    <div class="card">
+      <form id="form-berita">
+        <label>Judul Berita <span class="required">*</span></label>
+        <input type="text" name="judul" placeholder="Masukkan judul berita yang menarik..." required/>
+
+        <div class="row">
+          <div>
+            <label>Kategori <span class="required">*</span></label>
+            <select name="kategori" required>
+              <option value="">-- Pilih Kategori --</option>
+              <option value="Prestasi">🏆 Prestasi</option>
+              <option value="Kegiatan">📅 Kegiatan</option>
+              <option value="Pengumuman">📢 Pengumuman</option>
+              <option value="Teknologi">💻 Teknologi</option>
+              <option value="Olahraga">⚽ Olahraga</option>
+              <option value="Lainnya">📰 Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label>Nama Penulis</label>
+            <input type="text" name="penulis" placeholder="Nama penulis berita"/>
+          </div>
+        </div>
+
+        <label>Nama Sekolah</label>
+        <input type="text" name="sekolah" placeholder="Contoh: SMKN 1 Surabaya"/>
+
+        <label>URL Gambar (opsional)</label>
+        <input type="url" name="gambar_url" placeholder="https://..." id="input-gambar"
+               oninput="previewGambar(this.value)"/>
+        <div class="preview-box" id="preview-box">
+          🖼️ Preview gambar akan tampil di sini
+        </div>
+
+        <label>Isi Berita <span class="required">*</span></label>
+        <textarea name="isi" placeholder="Tulis isi berita di sini..." required></textarea>
+
+        <button type="submit" class="btn-submit" id="btn-submit">
+          🚀 Publikasikan Berita
+        </button>
+      </form>
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <script>
+    function previewGambar(url) {
+      const box = document.getElementById('preview-box');
+      if (url && url.startsWith('http')) {
+        box.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='🖼️ Gambar tidak dapat dimuat'" />`;
+      } else {
+        box.innerHTML = '🖼️ Preview gambar akan tampil di sini';
+      }
+    }
+
+    document.getElementById('form-berita').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit');
+      const status = document.getElementById('status');
+      const body = Object.fromEntries(new FormData(e.target).entries());
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Mempublikasikan...';
+      status.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/berita', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          status.textContent = '✅ Berita berhasil dipublikasikan! Mengalihkan...';
+          status.className = 'status-ok';
+          status.style.display = 'block';
+          e.target.reset();
+          document.getElementById('preview-box').innerHTML = '🖼️ Preview gambar akan tampil di sini';
+          setTimeout(() => window.location.href = '/', 2000);
+        } else {
+          status.textContent = '❌ ' + data.message;
+          status.className = 'status-err';
+          status.style.display = 'block';
+        }
+      } catch (err) {
+        status.textContent = '❌ Gagal: ' + err.message;
+        status.className = 'status-err';
+        status.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 Publikasikan Berita';
+      }
+    });
+  </script>
+</body>
+</html>
